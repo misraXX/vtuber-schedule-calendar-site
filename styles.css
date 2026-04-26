@@ -25,6 +25,51 @@ body {
   background: var(--bg);
 }
 
+.auth-gate {
+  display: none;
+}
+
+body.auth-locked {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+body.auth-locked .auth-gate {
+  display: grid;
+  width: min(420px, 100%);
+}
+
+body.auth-locked .app-header,
+body.auth-locked .layout {
+  display: none;
+}
+
+.auth-card {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 24px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.auth-card h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 0;
+}
+
+.auth-error {
+  min-height: 18px;
+  margin: 0;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 a {
   color: inherit;
 }

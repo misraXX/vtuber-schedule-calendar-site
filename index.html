@@ -6,7 +6,20 @@
     <title>配信スケジュール</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
+  <body class="auth-locked">
+    <section class="auth-gate" aria-labelledby="authTitle">
+      <form id="authForm" class="auth-card">
+        <p class="brand-kicker">PRIVATE DEMO</p>
+        <h1 id="authTitle">配信スケジュール</h1>
+        <label>
+          <span>パスワード</span>
+          <input id="authPassword" type="password" autocomplete="current-password" />
+        </label>
+        <button class="primary-button" type="submit">表示する</button>
+        <p id="authError" class="auth-error" aria-live="polite"></p>
+      </form>
+    </section>
+
     <header class="app-header">
       <div class="header-main">
         <div class="brand">
