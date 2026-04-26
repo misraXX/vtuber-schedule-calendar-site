@@ -63,10 +63,13 @@
             <option value="unknown">不明</option>
           </select>
         </label>
-        <div class="view-toggle" role="group" aria-label="表示形式">
-          <button id="tileViewButton" class="active" type="button">タイル</button>
-          <button id="listViewButton" type="button">リスト</button>
-        </div>
+        <label class="new-only-filter">
+          <span>動画</span>
+          <span class="toggle-check">
+            <input id="newOnlyFilter" type="checkbox" />
+            <span>NEWのみ</span>
+          </span>
+        </label>
         <details class="streamer-filter" open>
           <summary>
             <span>配信者</span>
@@ -131,7 +134,7 @@
           <a class="event-title" target="_blank" rel="noopener noreferrer"></a>
           <div class="event-footer">
             <span class="platform"></span>
-            <span class="duration"></span>
+            <span class="content-type-label"></span>
             <button class="watched-button" type="button" hidden></button>
           </div>
         </div>

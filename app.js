@@ -12,7 +12,6 @@ const CONTENT_MODES = {
 const state = {
   events: [],
   members: [],
-  view: 'tile',
   mode: CONTENT_MODES.STREAM,
   rangeOffset: 0,
   watchedIds: readWatchedIds(),
@@ -20,7 +19,8 @@ const state = {
     search: '',
     streamers: new Set(),
     platform: '',
-    status: ''
+    status: '',
+    newOnly: false
   }
 };
 
@@ -41,8 +41,7 @@ const elements = {
   clearStreamersButton: document.querySelector('#clearStreamersButton'),
   platformFilter: document.querySelector('#platformFilter'),
   statusFilter: document.querySelector('#statusFilter'),
-  tileViewButton: document.querySelector('#tileViewButton'),
-  listViewButton: document.querySelector('#listViewButton'),
+  newOnlyFilter: document.querySelector('#newOnlyFilter'),
   refreshButton: document.querySelector('#refreshButton'),
   prevRangeButton: document.querySelector('#prevRangeButton'),
   todayRangeButton: document.querySelector('#todayRangeButton'),
@@ -203,11 +202,13 @@ function bindEvents() {
     state.filters.status = event.target.value;
     render();
   });
+  elements.newOnlyFilter.addEventListener('change', event => {
+    state.filters.newOnly = event.target.checked;
+    render();
+  });
   elements.modeButtons.forEach(button => {
     button.addEventListener('click', () => setContentMode(button.dataset.contentMode));
   });
-  elements.tileViewButton.addEventListener('click', () => setView('tile'));
-  elements.listViewButton.addEventListener('click', () => setView('list'));
   elements.refreshButton.addEventListener('click', loadEvents);
   elements.prevRangeButton.addEventListener('click', () => shiftRange(-4));
   elements.todayRangeButton.addEventListener('click', () => {
@@ -334,14 +335,13 @@ function render() {
   const events = getFilteredEvents();
   const liveEvents = state.events
     .filter(event => event.contentType === CONTENT_MODES.STREAM && event.status === 'live')
-    .sort((a, b) => a.startDate - b.startDate);
+    .sort((a, b) => b.startDate - a.startDate);
 
   if (state.mode === CONTENT_MODES.STREAM) {
     elements.liveCount.textContent = liveEvents.length;
     renderLiveTiles(liveEvents.slice(0, 12));
   }
 
-  elements.calendarDays.classList.toggle('list-view', state.view === 'list');
   renderDays(events);
 
   requestAnimationFrame(() => {
@@ -356,6 +356,7 @@ function updateModeChrome() {
   document.body.classList.toggle('media-mode', !isStreamMode);
   elements.liveStrip.hidden = !isStreamMode;
   elements.statusFilter.disabled = !isStreamMode;
+  elements.newOnlyFilter.closest('.new-only-filter').hidden = isStreamMode;
   elements.modeButtons.forEach(button => {
     const active = button.dataset.contentMode === state.mode;
     button.classList.toggle('active', active);
@@ -368,6 +369,7 @@ function updateActiveFilterCount() {
   if (state.filters.search) count++;
   if (state.filters.platform) count++;
   if (state.filters.status && state.mode === CONTENT_MODES.STREAM) count++;
+  if (state.filters.newOnly && state.mode !== CONTENT_MODES.STREAM) count++;
   if (state.filters.streamers.size > 0) count++;
 
   elements.activeFilterCount.textContent = count;
@@ -375,7 +377,7 @@ function updateActiveFilterCount() {
 }
 
 function getFilteredEvents() {
-  const { search, streamers, platform, status } = state.filters;
+  const { search, streamers, platform, status, newOnly } = state.filters;
   const range = getVisibleRange();
   return state.events
     .filter(event => {
@@ -388,6 +390,7 @@ function getFilteredEvents() {
         && (streamers.size === 0 || streamers.has(event.name))
         && (!platform || event.site === platform)
         && (state.mode !== CONTENT_MODES.STREAM || !status || event.status === status)
+        && (state.mode === CONTENT_MODES.STREAM || !newOnly || !event.watched)
         && (state.mode !== CONTENT_MODES.STREAM || (event.startDate >= range.start && event.startDate < range.end));
     })
     .sort((a, b) => b.startDate - a.startDate);
@@ -454,7 +457,7 @@ function renderCardList(container, events, compact = false) {
     const thumb = card.querySelector('.thumb');
     const avatar = card.querySelector('.avatar');
     const badge = card.querySelector('.status-badge');
-    const duration = card.querySelector('.duration');
+    const contentTypeLabel = card.querySelector('.content-type-label');
     const watchedButton = card.querySelector('.watched-button');
 
     card.dataset.videoId = event.videoId;
@@ -485,9 +488,11 @@ function renderCardList(container, events, compact = false) {
 
     card.querySelector('.streamer').textContent = event.name || '未設定';
     card.querySelector('.time').textContent = formatEventTime(event);
-    card.querySelector('.platform').textContent = event.site || 'Unknown';
-    duration.textContent = event.duration || '';
-    duration.hidden = !event.duration;
+    const platform = card.querySelector('.platform');
+    platform.textContent = event.site || 'Unknown';
+    platform.hidden = event.contentType !== CONTENT_MODES.STREAM;
+    contentTypeLabel.textContent = event.contentType === CONTENT_MODES.SHORT ? 'Shorts' : '動画';
+    contentTypeLabel.hidden = event.contentType === CONTENT_MODES.STREAM;
 
     if (event.status === 'ended' || event.status === 'published') {
       badge.remove();
@@ -702,13 +707,6 @@ function inferStatus(start, end) {
   if (end) return 'ended';
   if (start && start.getTime() <= now) return 'live';
   return 'scheduled';
-}
-
-function setView(view) {
-  state.view = view;
-  elements.tileViewButton.classList.toggle('active', view === 'tile');
-  elements.listViewButton.classList.toggle('active', view === 'list');
-  render();
 }
 
 function setContentMode(mode) {

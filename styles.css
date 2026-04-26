@@ -120,7 +120,6 @@ select {
 
 .header-actions,
 .dialog-actions,
-.view-toggle,
 .content-tabs,
 .section-heading,
 .calendar-topline {
@@ -162,7 +161,7 @@ select {
 .icon-button,
 .primary-button,
 .ghost-button,
-.view-toggle button {
+.toggle-check {
   min-height: 40px;
   border: 1px solid var(--line);
   background: var(--surface);
@@ -451,21 +450,29 @@ select {
   color: var(--text);
 }
 
-.view-toggle {
-  overflow: hidden;
+.new-only-filter[hidden] {
+  display: none;
+}
+
+.toggle-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
   border: 1px solid var(--line);
   border-radius: 6px;
+  padding: 0 12px;
+  background: #fff;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
 }
 
-.view-toggle button {
-  min-width: 68px;
-  border: 0;
-  border-radius: 0;
-}
-
-.view-toggle button.active {
-  background: var(--text);
-  color: #fff;
+.toggle-check input {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
+  flex: 0 0 16px;
 }
 
 .streamer-filter {
@@ -652,10 +659,6 @@ select {
   gap: 14px;
 }
 
-.calendar-days.list-view .events-grid {
-  grid-template-columns: 1fr;
-}
-
 .event-card {
   display: grid;
   overflow: hidden;
@@ -692,10 +695,6 @@ select {
   font-size: 12px;
   font-weight: 900;
   content: "視聴済み";
-}
-
-.calendar-days.list-view .event-card {
-  grid-template-columns: 180px 1fr;
 }
 
 .thumb-link {
@@ -806,7 +805,7 @@ select {
 .time,
 .event-title,
 .platform,
-.duration {
+.content-type-label {
   margin: 0;
 }
 
@@ -820,7 +819,7 @@ select {
 
 .time,
 .platform,
-.duration {
+.content-type-label {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
@@ -881,8 +880,13 @@ select {
   color: var(--text);
 }
 
-.duration {
-  margin-right: auto;
+.content-type-label {
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #eef7f3;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .watched-button {
@@ -928,8 +932,7 @@ select {
   }
 
   .search-field,
-  .streamer-filter,
-  .view-toggle {
+  .streamer-filter {
     grid-column: 1 / -1;
   }
 }
@@ -967,7 +970,4 @@ select {
     flex-direction: column;
   }
 
-  .calendar-days.list-view .event-card {
-    grid-template-columns: 1fr;
-  }
 }
